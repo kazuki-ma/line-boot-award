@@ -1,0 +1,6 @@
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    compile 'com.linecorp.bot:line-bot-spring-boot'
+    compile 'com.linecorp.clova:clova-extension-boot-web:1.0.0'
+}

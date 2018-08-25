@@ -1,0 +1,140 @@
+/*
+ * Copyright 2016 LINE Corporation
+ *
+ * LINE Corporation licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
+// ./gradlew clean && ./gradlew uploadArchives -Prelease
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'https://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.2'
+        classpath 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
+        classpath 'io.spring.gradle:propdeps-plugin:0.0.9.RELEASE'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE'
+        classpath 'io.franzbecker:gradle-lombok:1.14'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.61"
+    }
+}
+
+buildscript {
+    ext.kotlin_version = '1.2.61'
+}
+
+apply plugin: 'idea'
+apply plugin: 'jacoco'
+
+group = 'com.linecorp.bot'
+version = '2.1.0-SNAPSHOT'
+
+allprojects {
+    repositories {
+        mavenCentral();
+    }
+}
+
+subprojects {
+    apply plugin: 'com.github.spotbugs'
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+    apply plugin: 'propdeps-idea'
+    apply plugin: 'propdeps-eclipse'
+    apply plugin: 'java'
+    apply plugin: 'checkstyle'
+    apply plugin: 'io.franzbecker.gradle-lombok'
+    apply plugin: 'io.spring.dependency-management'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    group = rootProject.group
+    version = rootProject.version
+
+    ext['guava.version'] = '25.1-jre'
+    ext['okhttp3.version'] = '3.10.0'
+
+    dependencyManagement {
+        imports {
+            mavenBom 'io.spring.platform:platform-bom:Brussels-SR10'
+        }
+
+        dependencies {
+            dependency 'com.github.stefanbirkner:system-rules:1.18.0'
+            dependency 'com.squareup.okhttp3:logging-interceptor:' + ext['okhttp3.version']
+            dependency 'com.squareup.okhttp3:mockwebserver:' + ext['okhttp3.version']
+            dependency 'com.squareup.retrofit2:converter-jackson:2.4.0'
+            dependency 'com.squareup.retrofit2:retrofit:2.4.0'
+            dependency 'org.assertj:assertj-core:3.10.0'
+            dependency 'org.projectlombok:lombok:1.18.0'
+            dependency 'com.linecorp.bot:line-bot-spring-boot:2.0.0'
+        }
+    }
+
+    dependencies {
+        compileOnly "org.springframework.boot:spring-boot-configuration-processor"
+        // http://docs.spring.io/spring-boot/docs/current/reference/html/configuration-metadata.html#configuration-metadata-annotation-processor
+
+        testCompile 'com.google.guava:guava'
+        testCompile 'com.github.stefanbirkner:system-rules'
+        testCompile 'com.squareup.okhttp3:mockwebserver'
+        testCompile 'org.hibernate:hibernate-validator'
+        testCompile 'org.springframework.boot:spring-boot-starter-test' // MockHttpServletRequest
+        testCompile 'org.springframework.boot:spring-boot-starter-logging'
+    }
+
+    compileJava.dependsOn(processResources)
+    // http://docs.spring.io/spring-boot/docs/current/reference/html/configuration-metadata.html#configuration-metadata-annotation-processor
+
+    jar {
+        manifest {
+            attributes 'Implementation-Title': project.name,
+                'Implementation-Version': version
+        }
+    }
+
+    lombok {
+        version = '1.18.0'
+    }
+
+    checkstyle {
+        configProperties = [projectDir: rootProject.projectDir]
+    }
+
+    compileJava {
+        options.compilerArgs << '-Xlint:all' << '-Xlint:deprecation' << '-Werror' << '-Xlint:-processing' << '-parameters'
+    }
+
+    project.plugins.withType(org.springframework.boot.gradle.plugin.SpringBootPlugin) {
+        bootRun {
+            systemProperties System.properties
+        }
+    }
+}
+
+task codeCoverageReport(type: JacocoReport) {
+    onlyIf = { true }
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+
+    reports {
+        xml.enabled true
+        xml.destination "${buildDir}/reports/jacoco/report.xml"
+        html.enabled true
+        csv.enabled false
+    }
+}
