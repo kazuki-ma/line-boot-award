@@ -25,9 +25,9 @@ buildscript {
     dependencies {
         classpath 'gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.2'
         classpath 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17'
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE'
         classpath 'io.spring.gradle:propdeps-plugin:0.0.9.RELEASE'
-        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.4.RELEASE'
         classpath 'io.franzbecker:gradle-lombok:1.14'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.61"
     }
@@ -71,7 +71,7 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom 'io.spring.platform:platform-bom:Brussels-SR10'
+            mavenBom 'io.spring.platform:platform-bom:Cairo-SR3'
         }
 
         dependencies {

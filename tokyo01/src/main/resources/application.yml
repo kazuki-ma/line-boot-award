@@ -1,0 +1,6 @@
+logging.level.org.apache.coyote: DEBUG
+
+line.bot:
+  channel-token: 'QHfZG7KLrILofVMjuBiSEBhVEa7MCtFRxDnDnMDUKyu6NXh51j9OoXFafy8Oko5883t3+ZPL0ziWUxFBqZOIQjMqVe9vMKwOvQN+ziq0Sd/a/RZvvChNCH9e9sz4xEEvKjFJJ5viVe+9Bx7gK2bMvwdB04t89/1O/w1cDnyilFU='
+  channel-secret: 'b16c73ea68216edee0ac211c3db35b95'
+
